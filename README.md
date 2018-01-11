@@ -141,6 +141,7 @@ An endpoint to obtain an access token for the Twilio API.
 
 To authorize the request, the client app must [obtain an access token](https://github.com/VirgilSecurity/virgil-services-auth#post-v4authorizationactionsobtain-access-token) 
 from the Virgil Auth service and include it in the `Authorization` header of the request:
+
 ```
 Authorization: Bearer eyJhbGciOiJ2aXJnaWwiLCJ0eXA...i8m2asGQM
 ```
