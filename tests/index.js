@@ -9,7 +9,7 @@ const deleteUser = require('./helpers/deleteUser');
 const app = require('../app');
 const api = request(app);
 
-const USER_IDENTITY = 'nexmo_demo_chat_test_user';
+const USER_IDENTITY = 'nexmo_demo_chat_test_user_' + Date.now();
 let user;
 
 const base64Decode = input => Buffer.from(input, 'base64').toString('utf8');
@@ -24,12 +24,11 @@ test('POST /users', t => {
 		.send({ csr: user.csr })
 		.expect(200)
 		.expect(res => {
-			const user = res.body.user;
-			const cardDto = user.virgilCard;
-			const jwt = res.body.jwt;
+			const { user: nexmoUser, jwt } = res.body;
+			const cardDto = nexmoUser.virgilCard;
 			const virgilCard = JSON.parse(base64Decode(cardDto));
 
-			t.ok(virgilCard.id, 'Virgil Card has id');
+			t.ok(virgilCard.id !== undefined, 'Virgil Card has id');
 			user.virgilCardId = virgilCard.id;
 
 			t.ok(jwt !== undefined, 'Jwt is returned');
