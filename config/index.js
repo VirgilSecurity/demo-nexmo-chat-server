@@ -8,7 +8,7 @@ const missingParams = [
 	'NEXMO_API_KEY',
 	'NEXMO_API_SECRET',
 	'NEXMO_APP_ID',
-	'NEXMO_APP_PRIVATE_KEY_PATH',
+	'NEXMO_APP_PRIVATE_KEY',
 	'VIRGIL_AUTH_URI',
 	'VIRGIL_AUTH_PUBLIC_KEY'
 ].filter(name => !process.env[name]);
@@ -31,6 +31,6 @@ module.exports = {
 		apiKey: process.env.NEXMO_API_KEY,
 		apiSecret: process.env.NEXMO_API_SECRET,
 		applicationId: process.env.NEXMO_APP_ID,
-		privateKey: process.env.NEXMO_APP_PRIVATE_KEY_PATH
+		privateKey: Buffer.from(process.env.NEXMO_APP_PRIVATE_KEY, 'base64')
 	}
 };
