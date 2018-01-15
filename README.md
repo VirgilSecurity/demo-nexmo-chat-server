@@ -81,7 +81,7 @@ An endpoint to create a new [Nexmo Conversation](https://ea.developer.nexmo.com/
 
 ```json
 {
-	"displayName": "My new conversation" 
+	"display_name": "My new conversation" 
 }
 ```
 
@@ -104,8 +104,8 @@ An endpoint to add a user to a conversation.
 
 ```json
 {
-	"conversationId": "CON-aaaaaaaa-bbbb-cccc-dddd-0123456789ab",
-	"userId": "USR-aaaaaaaa-bbbb-cccc-dddd-0123456789ab",
+	"conversation_id": "CON-aaaaaaaa-bbbb-cccc-dddd-0123456789ab",
+	"user_id": "USR-aaaaaaaa-bbbb-cccc-dddd-0123456789ab",
 	"action": "join"
 }
 ```
@@ -115,11 +115,13 @@ Parameter action must be "join" to add the user to the conversation. Other types
 **Response**
 
 ```json
-{
+{ 
+	"id": "MEM-aaaaaaaa-bbbb-cccc-dddd-0123456789ab",
 	"user_id": "USR-aaaaaaaa-bbbb-cccc-dddd-0123456789ab",
-	"name": "MEM-aaaaaaaa-bbbb-cccc-dddd-0123456789ab",
-	"user_name": "Dillon",
-	"state": "JOINED"
+	"state": "JOINED",
+	"timestamp": { "joined": "2018-01-15T15:17:59.248Z" },
+	"channel": { "type": "app" },
+	"href": "http://conversation.local/v1/conversations/CON-aaaaaaaa-bbbb-cccc-dddd-0123456789ab/members/MEM-aaaaaaaa-bbbb-cccc-dddd-0123456789ab"
 }
 ```
 
@@ -160,8 +162,8 @@ Application uses standard HTTP response codes:
 Additional information about the error is returned in response body as JSON object:
 ```json
 {
-	"status": {numeric_http_status},
-	"errorCode": {numeric_error_code},
+	"status": 500,
+	"error_code": 50000,
 	"message": "Message containing error details"
 }
 ```

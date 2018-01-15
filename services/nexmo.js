@@ -31,25 +31,25 @@ module.exports = {
 
 	},
 
-	createConversation(displayName) {
+	createConversation(display_name) {
 		return new Promise((resolve, reject) => {
-			nexmo.conversations.create({ display_name: displayName }, (err, conversation) => {
+			nexmo.conversations.create({ display_name }, (err, conversation) => {
 				if (err) {
 					return reject(err);
 				}
 
 				resolve(conversation);
-			})
+			});
 		});
 	},
 
-	updateConversation({ conversationId, userId, action }) {
+	updateConversation({ conversation_id, user_id, action }) {
 		return new Promise((resolve, reject) => {
 			nexmo.conversations.members.add(
-				conversationId,
+				conversation_id,
 				{
 					action,
-					user_id: userId,
+					user_id,
 					channel: {
 						type: 'app'
 					}

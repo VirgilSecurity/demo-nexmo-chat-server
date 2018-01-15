@@ -19,7 +19,7 @@ router.post('/users', (req, res, next) => {
 				.then(user => {
 					const jwt = nexmo.generateJwt(card.identity);
 					const response = Object.assign({}, {
-						user: Object.assign(user, { virgilCard: virgil.serializeCard(card) }),
+						user: Object.assign(user, { virgil_card: virgil.serializeCard(card) }),
 						jwt
 					});
 					res.json(response);
@@ -35,9 +35,9 @@ router.get('/users', authenticate, (req, res, next) => {
 });
 
 router.post('/conversations', authenticate, (req, res, next) => {
-	const { displayName } = req.body;
+	const displayName = req.body.display_name;
 	if (!displayName) {
-		return next(errors.MISSING_PARAM('displayName'));
+		return next(errors.MISSING_PARAM('display_name'));
 	}
 
 	nexmo.createConversation(displayName)
@@ -46,21 +46,21 @@ router.post('/conversations', authenticate, (req, res, next) => {
 });
 
 router.put('/conversations', authenticate, (req, res, next) => {
-	const { conversationId, userId, action } = req.body;
+	const { conversation_id, user_id, action } = req.body;
 
-	if (!conversationId) {
-		return next(errors.MISSING_PARAM('conversationId'));
+	if (!conversation_id) {
+		return next(errors.MISSING_PARAM('conversation_id'));
 	}
 
-	if (!userId) {
-		return next(errors.MISSING_PARAM('userId'));
+	if (!user_id) {
+		return next(errors.MISSING_PARAM('user_id'));
 	}
 
 	if (!action) {
 		return next(errors.MISSING_PARAM('action'));
 	}
 
-	nexmo.updateConversation({ conversationId, userId, action })
+	nexmo.updateConversation({ conversation_id, user_id, action })
 		.then(result => res.json(result))
 		.catch(next);
 });

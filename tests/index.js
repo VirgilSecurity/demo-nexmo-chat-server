@@ -12,6 +12,9 @@ const api = request(app);
 const USER_IDENTITY = 'nexmo_demo_chat_test_user_' + Date.now();
 let user;
 
+const CONVERSATION_NAME = 'nexmo_demo_chat_conversation_' + Date.now();
+let conversation;
+
 const base64Decode = input => Buffer.from(input, 'base64').toString('utf8');
 
 test('setup', t => {
@@ -25,14 +28,13 @@ test('POST /users', t => {
 		.expect(200)
 		.expect(res => {
 			const { user: nexmoUser, jwt } = res.body;
-			const cardDto = nexmoUser.virgilCard;
+			const cardDto = nexmoUser.virgil_card;
 			const virgilCard = JSON.parse(base64Decode(cardDto));
 
 			t.ok(virgilCard.id !== undefined, 'Virgil Card has id');
-			user.virgilCardId = virgilCard.id;
-
 			t.ok(jwt !== undefined, 'Jwt is returned');
-			user.jwt = jwt;
+
+			Object.assign(user, nexmoUser, { virgilCardId: virgilCard.id });
 
 			t.ok(virgilCard.content_snapshot, 'Virgil Card has snapshot');
 			t.ok(virgilCard.meta, 'Virgil Card has meta');
@@ -49,6 +51,45 @@ test('POST /users', t => {
 		});
 });
 
+test('POST /conversations', t => {
+	obtainAccessToken(user)
+		.then(accessToken => {
+			api.post('/conversations')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.send({ display_name: CONVERSATION_NAME })
+				.expect(200)
+				.expect(res => {
+					const result = res.body;
+					console.log(result);
+					t.ok(result.id, 'Conversation has ID');
+					conversation = result;
+				})
+				.end(err => t.end(err));
+		})
+		.catch(err => t.end(err));
+});
+
+test('PUT /conversation', t => {
+	obtainAccessToken(user)
+		.then(accessToken => {
+			api.put('/conversations')
+				.set('Authorization', `Bearer ${accessToken}`)
+				.send({
+					conversation_id: conversation.id,
+					user_id: user.id,
+					action: 'join'
+				})
+				.expect(200)
+				.expect(res => {
+					const membership = res.body;
+					t.ok(membership.id, 'Membership is created.');
+					t.equal(membership.state, 'JOINED', 'Membership state is "JOINED"');
+				})
+				.end(err => t.end(err));
+		})
+		.catch(err => t.end(err));
+});
+
 test('POST /users with invalid CSR', t => {
 	api.post('/users')
 		.send({ csr: 'invalid_csr' })
@@ -56,7 +97,7 @@ test('POST /users with invalid CSR', t => {
 		.expect(res => {
 			const error = res.body;
 			t.equals(error.status, 400, 'Error has status');
-			t.equals(error.errorCode, 40001, 'Error has error code');
+			t.equals(error.error_code, 40001, 'Error has error code');
 			t.ok(error.message, 'Error has message');
 		})
 		.end((err, res) => {
@@ -94,7 +135,7 @@ test('GET /jwt without auth header', t => {
 		.expect(res => {
 			const error = res.body;
 			t.equals(error.status, 401, 'Error has status');
-			t.equals(error.errorCode, 40101, 'Error has error code');
+			t.equals(error.error_code, 40101, 'Error has error code');
 			t.ok(error.message, 'Error has message');
 		})
 		.end(err => {
@@ -113,7 +154,7 @@ test('GET /jwt with invalid token', t => {
 		.expect(res => {
 			const error = res.body;
 			t.equals(error.status, 401, 'Error has status');
-			t.equals(error.errorCode, 40102, 'Error has error code');
+			t.equals(error.error_code, 40102, 'Error has error code');
 			t.ok(error.message, 'Error has message');
 		})
 		.end(err => {
@@ -125,7 +166,7 @@ test('GET /jwt with invalid token', t => {
 		});
 });
 
-test('teardown', t => {
+test.skip('teardown', t => {
 	if (!user.virgilCardId) {
 		return t.end();
 	}

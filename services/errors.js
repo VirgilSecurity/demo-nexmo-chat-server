@@ -13,7 +13,7 @@ inherits(ApiError, Error);
 ApiError.prototype.toJSON = function () {
 	return {
 		status: this.status,
-		errorCode: this.errorCode,
+		error_code: this.errorCode,
 		message: this.message
 	};
 };
