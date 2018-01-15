@@ -5,22 +5,19 @@ IMAGENAME=virgil-demo-nexmo-server
 DOCKER_REGISTRY=virgilsecurity-docker-core.bintray.io
 
 define tag_docker
-  @if [ "$(GIT_BRANCH)" = "master" ]; then \
+  @if [ "$(GIT_TAG)" != "" ]; then \
+    docker tag $(IMAGENAME) $(DOCKER_REGISTRY)/services/$(IMAGENAME):$(GIT_TAG); \
     docker tag $(IMAGENAME) $(DOCKER_REGISTRY)/services/$(IMAGENAME):latest; \
-		docker tag $(IMAGENAME) $(DOCKER_REGISTRY)/services/$(IMAGENAME):$(GIT_COMMIT); \
   else \
-  	docker tag $(IMAGENAME) $(DOCKER_REGISTRY)/services-dev/$(IMAGENAME):latest; \
-    docker tag $(IMAGENAME) $(DOCKER_REGISTRY)/services-dev/$(IMAGENAME):$(GIT_COMMIT); \
+    docker tag $(IMAGENAME) $(DOCKER_REGISTRY)/services-dev/$(IMAGENAME):$(GIT_BRANCH); \
   fi
 endef
 
 define push_docker
-  @if [ "$(GIT_BRANCH)" = "master" ]; then \
-    docker push $(DOCKER_REGISTRY)/services/$(IMAGENAME):latest; \
-		docker push $(DOCKER_REGISTRY)/services/$(IMAGENAME):$(GIT_COMMIT); \
+  @if [ "$(GIT_TAG)" != "" ]; then \
+    docker push $(DOCKER_REGISTRY)/services/$(IMAGENAME):$(GIT_TAG); \
   else \
-  	docker push $(DOCKER_REGISTRY)/services-dev/$(IMAGENAME):latest; \
-    docker push $(DOCKER_REGISTRY)/services-dev/$(IMAGENAME):$(GIT_COMMIT); \
+    docker push $(DOCKER_REGISTRY)/services-dev/$(IMAGENAME):$(GIT_BRANCH); \
   fi
 endef
 
