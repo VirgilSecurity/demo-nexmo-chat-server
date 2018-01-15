@@ -5,6 +5,7 @@ services:
   - docker
 env:
   global:
+    - GIT_TAG=$TRAVIS_TAG
     - GIT_COMMIT=$TRAVIS_COMMIT
     - GIT_BRANCH=$TRAVIS_BRANCH
 
@@ -12,7 +13,7 @@ before_install:
   - docker login -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD virgilsecurity-docker-core.bintray.io
 
 install:
-  - echo $GIT_COMMIT $GIT_BRANCH
+  - echo $GIT_COMMIT $GIT_BRANCH $GIT_TAG
 
 script:
   - make docker
