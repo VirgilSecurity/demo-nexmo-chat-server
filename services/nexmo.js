@@ -4,15 +4,9 @@ const config = require('../config');
 const nexmo = new Nexmo(config.nexmo);
 const USER_ACL = {
 	"paths": {
-		"/v1/sessions/**": {
-			"methods": ["GET"]
-		},
-		"/v1/users/*": {
-			"methods": ["GET"]
-		},
-		"/v1/conversations/*": {
-			"methods": ["GET", "POST", "PUT"]
-		}
+		"/v1/sessions/**": {},
+		"/v1/users/**": {},
+		"/v1/conversations/**": {}
 	}
 };
 const JWT_TTL = 86400;
@@ -28,7 +22,6 @@ module.exports = {
 				resolve(user);
 			});
 		});
-
 	},
 
 	createConversation(display_name) {
