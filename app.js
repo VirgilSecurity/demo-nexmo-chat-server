@@ -20,6 +20,11 @@ app.use(morgan('combined', {
 
 app.use(bodyParser.json());
 app.use(enableCORS);
+
+app.get('/', (req, res) => {
+	res.send('Application server is up and running');
+});
+
 app.use(router);
 app.use(handleNotFound);
 app.use(handleError);
