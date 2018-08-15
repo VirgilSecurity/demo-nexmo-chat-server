@@ -2,15 +2,14 @@ require('dotenv').config();
 
 const missingParams = [
 	'VIRGIL_APP_ID',
-	'VIRGIL_APP_ACCESS_TOKEN',
-	'VIRGIL_APP_PRIVATE_KEY_PASSWORD',
-	'VIRGIL_APP_PRIVATE_KEY',
+	'VIRGIL_API_KEY',
+	'VIRGIL_API_KEY_ID',
+	'VIRGIL_AUTH_URL',
+	'VIRGIL_AUTH_PUBLIC_KEY',
 	'NEXMO_API_KEY',
 	'NEXMO_API_SECRET',
 	'NEXMO_APP_ID',
-	'NEXMO_APP_PRIVATE_KEY',
-	'VIRGIL_AUTH_URI',
-	'VIRGIL_AUTH_PUBLIC_KEY'
+	'NEXMO_APP_PRIVATE_KEY'
 ].filter(name => !process.env[name]);
 
 if (missingParams.length > 0) {
@@ -18,14 +17,12 @@ if (missingParams.length > 0) {
 }
 
 module.exports = {
-	app: {
-		cardId: process.env.VIRGIL_APP_ID,
-		privateKeyData: process.env.VIRGIL_APP_PRIVATE_KEY,
-		privateKeyPassword: process.env.VIRGIL_APP_PRIVATE_KEY_PASSWORD
-	},
 	virgil: {
-		accessToken: process.env.VIRGIL_APP_ACCESS_TOKEN,
-		authBaseUrl: process.env.VIRGIL_AUTH_URI
+		apiKey: process.env.VIRGIL_API_KEY,
+		apiKeyId: process.env.VIRGIL_API_KEY_ID,
+		appId: process.env.VIRGIL_APP_ID,
+		authBaseUrl: process.env.VIRGIL_AUTH_URL,
+		authPublicKey: process.env.VIRGIL_AUTH_PUBLIC_KEY
 	},
 	nexmo: {
 		apiKey: process.env.NEXMO_API_KEY,

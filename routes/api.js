@@ -6,26 +6,25 @@ const errors = require('../services/errors');
 
 module.exports = router;
 
-router.post('/users', (req, res, next) => {
-	const csr = req.body.csr;
+router.post('/users', async (req, res, next) => {
+	const rawCardStr = req.body.raw_card_string;
 
-	if (!csr) {
-		return next(errors.MISSING_CSR());
+	if (!rawCardStr) {
+		return next(errors.MISSING_RAW_CARD());
 	}
 
-	virgil.publishCard(csr)
-		.then(card => {
-			return nexmo.createUser(card.identity)
-				.then(user => {
-					const jwt = nexmo.generateJwt(card.identity);
-					const response = Object.assign({}, {
-						user: Object.assign(user, { virgil_card: virgil.serializeCard(card) }),
-						jwt
-					});
-					res.json(response);
-				});
-		})
-		.catch(next);
+	try {
+		const card = await virgil.publishCard(rawCardStr);
+		const user = await nexmo.createUser(card.identity);
+		const jwt = nexmo.generateJwt(card.identity);
+		const response = Object.assign({}, {
+			user: Object.assign(user, { virgil_card: virgil.serializeCard(card) }),
+			jwt
+		});
+		res.json(response);
+	} catch (error) {
+		next(error);
+	}
 });
 
 router.get('/users', authenticate, (req, res, next) => {
@@ -71,22 +70,23 @@ router.get('/jwt', authenticate, fetchVirgilCard, (req, res) => {
 	res.json({ jwt });
 });
 
-function authenticate(req, res, next) {
+async function authenticate(req, res, next) {
 	const authHeader = req.get('Authorization');
 	if (!authHeader) {
 		return next(errors.MISSING_AUTHORIZATION());
 	}
 
-	virgil.verifyToken(authHeader.split(' ')[1])
-		.then(userCardId => {
-			if (userCardId === null) {
-				return Promise.reject(errors.INVALID_ACCESS_TOKEN());
-			}
+	try {
+		const userCardId = await virgil.getUserCardId(authHeader.split(' ')[1]);
+		if (userCardId === null) {
+			return next(errors.INVALID_ACCESS_TOKEN());
+		}
 
-			req.userCardId = userCardId;
-			next();
-		})
-		.catch(next);
+		req.userCardId = userCardId;
+		next();
+	} catch (error) {
+		next(error);
+	}
 }
 
 function fetchVirgilCard(req, res, next) {

@@ -2,9 +2,17 @@ require('dotenv').config();
 
 const request = require('supertest');
 const test = require('tape');
+const { VirgilCrypto, VirgilCardCrypto } = require('virgil-crypto');
+const { CardManager } = require('virgil-sdk');
 const createUser = require('./helpers/createUser');
 const obtainAccessToken = require('./helpers/obtainAccessToken');
-const deleteUser = require('./helpers/deleteUser');
+
+const virgilCrypto = new VirgilCrypto();
+const cardManager = new CardManager({
+	cardCrypto: new VirgilCardCrypto(virgilCrypto),
+	cardVerifier: null,
+	retryOnUnauthorized: false
+});
 
 const app = require('../app');
 const api = request(app);
@@ -15,32 +23,72 @@ let user;
 const CONVERSATION_NAME = 'nexmo_demo_chat_conversation_' + Date.now();
 let conversation;
 
-const base64Decode = input => Buffer.from(input, 'base64').toString('utf8');
-
-test('setup', t => {
-	user = createUser(USER_IDENTITY);
-	t.end();
-});
-
 test('POST /users', t => {
+	user = createUser(USER_IDENTITY);
 	api.post('/users')
-		.send({ csr: user.csr })
+		.send({ raw_card_string: user.rawCard.toString() })
 		.expect(200)
 		.expect(res => {
 			const { user: nexmoUser, jwt } = res.body;
 			const cardDto = nexmoUser.virgil_card;
-			const virgilCard = JSON.parse(base64Decode(cardDto));
+			const virgilCard = cardManager.importCardFromString(cardDto);
 
 			t.ok(virgilCard.id !== undefined, 'Virgil Card has id');
 			t.ok(jwt !== undefined, 'Jwt is returned');
 
 			Object.assign(user, nexmoUser, { virgilCardId: virgilCard.id });
 
-			t.ok(virgilCard.content_snapshot, 'Virgil Card has snapshot');
-			t.ok(virgilCard.meta, 'Virgil Card has meta');
-			t.ok(virgilCard.meta.signs, 'Virgil Card has signatures');
-			const signatures = Object.keys(virgilCard.meta.signs);
-			t.equals(signatures.length, 3, 'Virgil Card is signed by the App and Cards Service');
+			t.ok(virgilCard.contentSnapshot, 'Virgil Card has snapshot');
+			t.equals(virgilCard.signatures.length, 2, 'Virgil Card is signed by the Virgil Cards Service');
+		})
+		.end(err => {
+			if (err) {
+				return t.end(err);
+			}
+			t.end();
+		});
+});
+
+testWithAccessToken('POST /conversations', (t, accessToken) => {
+	api.post('/conversations')
+		.set('Authorization', `Bearer ${accessToken}`)
+		.send({ display_name: CONVERSATION_NAME })
+		.expect(200)
+		.expect(res => {
+			const result = res.body;
+			t.ok(result.id, 'Conversation has ID');
+			conversation = result;
+		})
+		.end(err => t.end(err));
+});
+
+testWithAccessToken('PUT /conversations', (t, accessToken) => {
+	if (!conversation) {
+		return t.end('Conversation does not exist.');
+	}
+
+	api.put('/conversations')
+		.set('Authorization', `Bearer ${accessToken}`)
+		.send({
+			conversation_id: conversation.id,
+			user_id: user.id,
+			action: 'join'
+		})
+		.expect(200)
+		.expect(res => {
+			const membership = res.body;
+			t.ok(membership.id, 'Membership is created.');
+			t.equal(membership.state, 'JOINED', 'Membership state is "JOINED"');
+		})
+		.end(err => t.end(err));
+});
+
+testWithAccessToken('GET /jwt', (t, accessToken) => {
+	api.get('/jwt')
+		.set('Authorization', `Bearer ${accessToken}`)
+		.expect(200)
+		.expect(res => {
+			t.ok(res.body.jwt, 'Jwt received');
 		})
 		.end(err => {
 			if (err) {
@@ -51,48 +99,9 @@ test('POST /users', t => {
 		});
 });
 
-test('POST /conversations', t => {
-	obtainAccessToken(user)
-		.then(accessToken => {
-			api.post('/conversations')
-				.set('Authorization', `Bearer ${accessToken}`)
-				.send({ display_name: CONVERSATION_NAME })
-				.expect(200)
-				.expect(res => {
-					const result = res.body;
-					console.log(result);
-					t.ok(result.id, 'Conversation has ID');
-					conversation = result;
-				})
-				.end(err => t.end(err));
-		})
-		.catch(err => t.end(err));
-});
-
-test('PUT /conversation', t => {
-	obtainAccessToken(user)
-		.then(accessToken => {
-			api.put('/conversations')
-				.set('Authorization', `Bearer ${accessToken}`)
-				.send({
-					conversation_id: conversation.id,
-					user_id: user.id,
-					action: 'join'
-				})
-				.expect(200)
-				.expect(res => {
-					const membership = res.body;
-					t.ok(membership.id, 'Membership is created.');
-					t.equal(membership.state, 'JOINED', 'Membership state is "JOINED"');
-				})
-				.end(err => t.end(err));
-		})
-		.catch(err => t.end(err));
-});
-
-test('POST /users with invalid CSR', t => {
+test('POST /users with invalid card', t => {
 	api.post('/users')
-		.send({ csr: 'invalid_csr' })
+		.send({ raw_card_string: 'invalid_card' })
 		.expect(400)
 		.expect(res => {
 			const error = res.body;
@@ -100,33 +109,13 @@ test('POST /users with invalid CSR', t => {
 			t.equals(error.error_code, 40001, 'Error has error code');
 			t.ok(error.message, 'Error has message');
 		})
-		.end((err, res) => {
+		.end((err) => {
 			if (err) {
 				return t.end(err);
 			}
 
 			t.end();
 		});
-});
-
-test('GET /jwt', t => {
-	obtainAccessToken(user)
-		.then(accessToken => {
-			api.get('/jwt')
-				.set('Authorization', `Bearer ${accessToken}`)
-				.expect(200)
-				.expect(res => {
-					t.ok(res.body.jwt, 'Jwt received');
-				})
-				.end(err => {
-					if (err) {
-						return t.end(err);
-					}
-
-					t.end();
-				});
-		})
-		.catch(err => t.end(err));
 });
 
 test('GET /jwt without auth header', t => {
@@ -166,12 +155,25 @@ test('GET /jwt with invalid token', t => {
 		});
 });
 
-test.skip('teardown', t => {
-	if (!user.virgilCardId) {
-		return t.end();
+function testWithAccessToken(name, cb) {
+	let accessTokenPromise;
+
+	function getAccessTokenPromise(user) {
+		if (!accessTokenPromise) {
+			accessTokenPromise = obtainAccessToken(user);
+		}
+		return accessTokenPromise;
 	}
 
-	deleteUser(user)
-		.then(() => t.end())
-		.catch(e => t.end(e));
-});
+	return test(name, t => {
+		if (!user.virgilCardId) {
+			t.end('Cannot test without user record');
+		}
+
+		getAccessTokenPromise(user)
+			.then(accessToken => {
+				cb(t, accessToken);
+			})
+			.catch(error => t.end(error));
+	});
+}
