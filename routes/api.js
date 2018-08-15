@@ -16,10 +16,12 @@ router.post('/users', async (req, res, next) => {
 	try {
 		const card = await virgil.publishCard(rawCardStr);
 		const user = await nexmo.createUser(card.identity);
-		const jwt = nexmo.generateJwt(card.identity);
+		const nexmo_jwt = nexmo.generateJwt(card.identity);
+		const virgil_jwt = virgil.generateJwt(card.identity);
 		const response = Object.assign({}, {
 			user: Object.assign(user, { virgil_card: virgil.serializeCard(card) }),
-			jwt
+			nexmo_jwt,
+			virgil_jwt
 		});
 		res.json(response);
 	} catch (error) {
@@ -64,10 +66,16 @@ router.put('/conversations', authenticate, (req, res, next) => {
 		.catch(next);
 });
 
-router.get('/jwt', authenticate, fetchVirgilCard, (req, res) => {
+router.get('/nexmo-jwt', authenticate, fetchVirgilCard, (req, res) => {
 	const { userCard } = req;
 	const jwt = nexmo.generateJwt(userCard.identity);
 	res.json({ jwt });
+});
+
+router.get('/virgil-jwt', authenticate, fetchVirgilCard, (req, res) => {
+	const { userCard } = req;
+	const jwt = virgil.generateJwt(userCard.identity);
+	res.json({ jwt: jwt.toString() });
 });
 
 async function authenticate(req, res, next) {
