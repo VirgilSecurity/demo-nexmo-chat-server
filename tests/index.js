@@ -1,4 +1,9 @@
-require('dotenv').config();
+const path = require('path');
+
+const res = require('dotenv').config({ path: path.resolve(__dirname, '../.env.test') });
+if (res.error) {
+	throw res.error;
+}
 
 const request = require('supertest');
 const test = require('tape');
@@ -14,8 +19,8 @@ const cardManager = new CardManager({
 	retryOnUnauthorized: false
 });
 
-const app = require('../app');
-const api = request(app);
+// make sure the app is started with `docker-compose up`
+const api = request('http://localhost:3000');
 
 const USER_IDENTITY = 'nexmo_demo_chat_test_user_' + Date.now();
 let user;
