@@ -220,7 +220,7 @@ Additional information about the error is returned in response body as JSON obje
 	npm test
 	```
 * You can access the server API at http://localhost:3000
-* The [Virgil Auth Service](https://github.com/VirgilSecurity/virgil-services-auth) is available at http://localhost:8080
+* The [Virgil Auth Service](https://github.com/VirgilSecurity/virgil-services-auth) is listening at http://localhost:8080
 * To stop the running server, run
 	```sh
 	npm run stop
