@@ -126,13 +126,7 @@ test('GET /nexmo-jwt without auth header', t => {
 			t.equals(error.error_code, 40101, 'Error has error code');
 			t.ok(error.message, 'Error has message');
 		})
-		.end(err => {
-			if (err) {
-				return t.end(err);
-			}
-
-			t.end();
-		});
+		.end(err => t.end(err));
 });
 
 test('GET /nexmo-jwt with invalid token', t => {
@@ -185,13 +179,13 @@ function testWithAccessToken(name, cb) {
 
 	return test(name, t => {
 		if (!user.virgilCardId) {
-			t.end('Cannot test without user record');
+			return t.end('Cannot test without user record');
 		}
 
 		getAccessTokenPromise(user)
 			.then(accessToken => {
 				cb(t, accessToken);
 			})
-			.catch(error => t.end(error));
+			.catch(ignore => {});
 	});
 }
