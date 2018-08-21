@@ -1,10 +1,11 @@
-# Virgil Nexmo Demo Chat API v2
+# Virgil Nexmo Demo Chat API v2 Sample Backend
 
-Application API server for the Virgil Nexmo Demo Messaging app. Its primary purpose is to register users' Virgil Cards
-on  Virgil Cards service and generate JWTs for users to access Nexmo and Virgil APIs. Uses ad hoc
-[Virgil Auth](https://github.com/VirgilSecurity/virgil-services-auth) service to authenticate users without passwords.
+Application API server for the [Virgil Nexmo In-app Messaging Demo app](https://github.com/VirgilSecurity/demo-nexmo-chat-android). Its primary purpose is to register users' Virgil Cards on  Virgil's Cards service and generate JWTs for users to access Nexmo and Virgil APIs. Uses ad hoc [Virgil Auth](https://github.com/VirgilSecurity/virgil-services-auth) service to authenticate users without passwords - feel free to replace the auth to your own auth tech and/or copy this sample Node app into your own backend.
 
  ## Contents
+ * [Deployment](#deployment)
+    * [Pre-requisites)(#Pre-requisites)
+    * [Setup instructions)(#Setup instructions)
  * [Endpoints](#endpoints)
     * [POST /users](#post-users)
     * [GET /users](#get-users)
@@ -15,6 +16,51 @@ on  Virgil Cards service and generate JWTs for users to access Nexmo and Virgil 
  * [Authorization](#authorization)
  * [Errors](#errors)
  * [Development](#development)
+
+## Deployment
+
+### Pre-requisites
+
+* Ensure you have [Node.js](https://nodejs.org/en/) >= 8 installed 
+* Ensure you have [Docker](https://docs.docker.com/install/) installed
+* Create a free [Virgil Security](https://dashboard.virgilsecurity.com/) account
+* Create a free [Nexmo](https://dashboard.nexmo.com/) account
+* Install the Nexmo CLI (note the `@beta` tag):
+	```sh
+	npm install -g nexmo-cli@beta
+	```
+	Setup the CLI to use your Nexmo API Key and API Secret. You can get these from the 
+	[settings](https://dashboard.nexmo.com/settings) page in the Nexmo Dashboard.
+	```sh
+	nexmo setup api_key api_secret
+	```
+
+### Setup instructions
+
+* Create an **END-TO-END ENCRYPTION** Application in the Virgil Security [Dashboard](https://dashboard.virgilsecurity.com/apps/new)
+* Create an **API Key** in the Virgil Security [Dashboard](https://dashboard.virgilsecurity.com/api-keys)
+* Create a Nexmo Application
+	```sh
+	nexmo app:create "My Stitch App" https://example.com/answer https://example.com/event --type=rtc --keyfile=private.key
+	```
+* Run the `setup` npm script and follow the instructions to configure the server
+	```sh
+	npm run setup
+	```
+* Start the server
+	```sh
+	npm run start
+	```
+* Run the tests to verify that it's working
+	```sh
+	npm test
+	```
+* You can access the server API at http://localhost:3000
+* The [Virgil Auth Service](https://github.com/VirgilSecurity/virgil-services-auth) is listening at http://localhost:8080
+* To stop the running server, run
+	```sh
+	npm run stop
+	```
  
  ## Endpoints
  
@@ -180,48 +226,3 @@ Additional information about the error is returned in response body as JSON obje
 	"message": "Message containing error details"
 }
 ```
-
-## Development
-
-### Before you begin
-
-* Ensure you have [Node.js](https://nodejs.org/en/) >= 8 installed 
-* Ensure you have [Docker](https://docs.docker.com/install/) installed
-* Create a free [Virgil Security](https://dashboard.virgilsecurity.com/) account
-* Create a free [Nexmo](https://dashboard.nexmo.com/) account
-* Install the Nexmo CLI (note the `@beta` tag):
-	```sh
-	npm install -g nexmo-cli@beta
-	```
-	Setup the CLI to use your Nexmo API Key and API Secret. You can get these from the 
-	[settings](https://dashboard.nexmo.com/settings) page in the Nexmo Dashboard.
-	```sh
-	nexmo setup api_key api_secret
-	```
-
-### Setup
-
-* Create an **END-TO-END ENCRYPTION** Application in the Virgil Security [Dashboard](https://dashboard.virgilsecurity.com/apps/new)
-* Create an **API Key** in the Virgil Security [Dashboard](https://dashboard.virgilsecurity.com/api-keys)
-* Create a Nexmo Application
-	```sh
-	nexmo app:create "My Stitch App" https://example.com/answer https://example.com/event --type=rtc --keyfile=private.key
-	```
-* Run the `setup` npm script and follow the instructions to configure the server
-	```sh
-	npm run setup
-	```
-* Start the server
-	```sh
-	npm run start
-	```
-* Run the tests to verify that it's working
-	```sh
-	npm test
-	```
-* You can access the server API at http://localhost:3000
-* The [Virgil Auth Service](https://github.com/VirgilSecurity/virgil-services-auth) is listening at http://localhost:8080
-* To stop the running server, run
-	```sh
-	npm run stop
-	```
