@@ -1,0 +1,23 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file: .env.web
+    depends_on:
+      - auth
+    volumes:
+      - ./:/opt/webapp
+  auth:
+    image: virgilsecurity/virgil-auth:latest
+    ports:
+      - "8080:8080"
+    env_file: .env.auth
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"

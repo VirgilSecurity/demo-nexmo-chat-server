@@ -1,21 +1,24 @@
-const virgil = require('virgil-sdk');
+const { VirgilCrypto, VirgilCardCrypto } = require('virgil-crypto');
+const { CardManager } = require('virgil-sdk');
+
+const virgilCrypto = new VirgilCrypto();
+const cardManager = new CardManager({
+	cardCrypto: new VirgilCardCrypto(virgilCrypto),
+	cardVerifier: null,
+	retryOnUnauthorized: false
+});
 
 module.exports = function createUser(username) {
-	const keyPair = virgil.crypto.generateKeys();
+	const keyPair = virgilCrypto.generateKeys();
 
-	const publicKeyData = virgil.crypto.exportPublicKey(keyPair.publicKey);
-	const request = virgil.publishCardRequest({
+	const rawCard = cardManager.generateRawCard({
 		identity: username,
-		identity_type: 'username',
-		scope: virgil.CardScope.APPLICATION,
-		public_key: publicKeyData.toString('base64')
+		privateKey: keyPair.privateKey,
+		publicKey: keyPair.publicKey
 	});
 
-	const signer = virgil.requestSigner(virgil.crypto);
-	signer.selfSign(request, keyPair.privateKey);
-
 	return {
-		csr: request.export(),
+		rawCard,
 		privateKey: keyPair.privateKey
 	};
 };

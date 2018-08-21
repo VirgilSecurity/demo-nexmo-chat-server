@@ -1,9 +1,8 @@
-# Virgil Nexmo Demo Chat API v1
+# Virgil Nexmo Demo Chat API v2
 
-Application API server for the Virgil Nexmo Demo Messaging app. Its primary purpose is to register users' Virgil Cards on 
-Virgil Cards service and generate JWT for users to access Nexmo APIs. Uses ad hoc [Virgil Auth](https://github.com/VirgilSecurity/virgil-services-auth) 
-service to authenticate users without passwords.
-
+Application API server for the Virgil Nexmo Demo Messaging app. Its primary purpose is to register users' Virgil Cards
+on  Virgil Cards service and generate JWTs for users to access Nexmo and Virgil APIs. Uses ad hoc
+[Virgil Auth](https://github.com/VirgilSecurity/virgil-services-auth) service to authenticate users without passwords.
 
  ## Contents
  * [Endpoints](#endpoints)
@@ -11,32 +10,32 @@ service to authenticate users without passwords.
     * [GET /users](#get-users)
     * [POST /conversations](#post-conversations)
     * [PUT /conversations](#put-conversations)
-    * [GET /jwt](#get-jwt)
+    * [GET /nexmo-jwt](#get-nexmo-jwt)
+    * [GET /virgil-jwt](#get-virgil-jwt)
  * [Authorization](#authorization)
  * [Errors](#errors)
-    
+ * [Development](#development)
  
  ## Endpoints
  
  ### POST /users
  
- An endpoint to register new user. Expects a _Card Signing Request_ as its only parameter. The CSR must satisfy 
- the following requirements:
- 
- * `scope` must be `"application"`.
- * `identity` must be unique. Attempt to register a card with duplicate identity will result in `400 BadRequest` error.
+ An endpoint to register new user. Expects a _Raw Card_ in base64 string form as its only parameter.
+ The raw card must have unique identity, attempt to register a card with duplicate identity will result in
+ `400 BadRequest` error.
  
  **Request**
  ```json
 {
-	"csr": "eyJjb250ZW50X3NuYXBzaG90IjoiZXlKcFpHVnVkR2...k9In19fQ=="
+	"raw_card_string": "eyJjb250ZW50X3NuYXBzaG90IjoiZXlKcFpHVnVkR2...k9In19fQ=="
 }
 ```
 
 **Response**
 
-If request is successful, an object representing a [Nexmo user](https://ea.developer.nexmo.com/api/conversation#create-a-user) 
-is returned along with the string representation of the user's Virgil Card and a JWT for access to Nexmo APIs:
+If request is successful, an object representing a [Nexmo user](https://developer.nexmo.com/stitch/in-app-messaging/guides/simple-conversation)
+is returned along with the base64 string representation of the user's Virgil Card and two JWTs for Nexmo and Virgil
+APIs:
 
 > Request must include `Content-Type: "application/json"` header 
  
@@ -47,11 +46,12 @@ is returned along with the string representation of the user's Virgil Card and a
 		"href": "http://conversation.local/v1/users/USR-aaaaaaaa-bbbb-cccc-dddd-0123456789ab",
 		"virgil_card": "eyJjb250ZW50X3NuYXBzaG90IjoiZXlKcFpHVnVkR2...k9In19fQ=="
 	},
-	"jwt": "xxxxx.yyyyy.zzzzz"   
+	"nexmo_jwt": "xxxxx.yyyyy.zzzzz",
+	"virgil_jwt": "qqqqq.bbbbb.ddddd"
 }
 ```
-You can then use virgil sdk to `import` a Virgil Card object from this string. The `jwt` can be used to initialize the 
-Nexmo API client.
+You can then use the `CardManager` from virgil sdk to `import` a Virgil Card from this string. The `nexmo_jwt` and
+ `virgil_jwt` can be used to initialize the appropriate API client.
 
 ### GET /users
 
@@ -73,7 +73,7 @@ An endpoint to retrieve a list of users.
 
 ### POST /conversations
 
-An endpoint to create a new [Nexmo Conversation](https://ea.developer.nexmo.com/api/conversation)
+An endpoint to create a new [Nexmo Conversation](https://developer.nexmo.com/stitch/in-app-messaging/guides/simple-conversation)
 
 > This endpoint requires [authorization](#authorization).
 
@@ -125,9 +125,9 @@ Parameter action must be "join" to add the user to the conversation. Other types
 }
 ```
 
-### GET /jwt
+### GET /nexmo-jwt
 
-An endpoint to obtain an access token for the Twilio API.
+An endpoint to obtain an access token for the Nexmo API.
  
 > This endpoint requires [authorization](#authorization).
 
@@ -138,10 +138,23 @@ An endpoint to obtain an access token for the Twilio API.
 }
 ```
 
+### GET /virgil-jwt
+
+An endpoint to obtain an access token for the Virgil Security API.
+
+> This endpoint requires [authorization](#authorization).
+
+**Response**
+```json
+{
+	"jwt": "qqqqq.bbbbb.ddddd"
+}
+```
+
 
 ## Authorization
 
-To authorize the request, the client app must [obtain an access token](https://github.com/VirgilSecurity/virgil-services-auth#post-v4authorizationactionsobtain-access-token) 
+To authorize the request, the client app must [obtain an access token](https://github.com/VirgilSecurity/virgil-services-auth#post-v5authorizationactionsobtain-access-token)
 from the Virgil Auth service and include it in the `Authorization` header of the request:
 
 ```
@@ -167,3 +180,48 @@ Additional information about the error is returned in response body as JSON obje
 	"message": "Message containing error details"
 }
 ```
+
+## Development
+
+### Before you begin
+
+* Ensure you have [Node.js](https://nodejs.org/en/) >= 8 installed 
+* Ensure you have [Docker](https://docs.docker.com/install/) installed
+* Create a free [Virgil Security](https://dashboard.virgilsecurity.com/) account
+* Create a free [Nexmo](https://dashboard.nexmo.com/) account
+* Install the Nexmo CLI (note the `@beta` tag):
+	```sh
+	npm install -g nexmo-cli@beta
+	```
+	Setup the CLI to use your Nexmo API Key and API Secret. You can get these from the 
+	[settings](https://dashboard.nexmo.com/settings) page in the Nexmo Dashboard.
+	```sh
+	nexmo setup api_key api_secret
+	```
+
+### Setup
+
+* Create an **END-TO-END ENCRYPTION** Application in the Virgil Security [Dashboard](https://dashboard.virgilsecurity.com/apps/new)
+* Create an **API Key** in the Virgil Security [Dashboard](https://dashboard.virgilsecurity.com/api-keys)
+* Create a Nexmo Application
+	```sh
+	nexmo app:create "My Stitch App" https://example.com/answer https://example.com/event --type=rtc --keyfile=private.key
+	```
+* Run the `setup` npm script and follow the instructions to configure the server
+	```sh
+	npm run setup
+	```
+* Start the server
+	```sh
+	npm run start
+	```
+* Run the tests to verify that it's working
+	```sh
+	npm test
+	```
+* You can access the server API at http://localhost:3000
+* The [Virgil Auth Service](https://github.com/VirgilSecurity/virgil-services-auth) is listening at http://localhost:8080
+* To stop the running server, run
+	```sh
+	npm run stop
+	```

@@ -9,8 +9,10 @@ yarn-error.log*
 node_modules/
 
 # dotenv environment variables file
-.env
+.env*
+!.env.*.example
 
 # Nexmo Application files
 .nexmo-app
 nexmo-app-private.key
+private.key

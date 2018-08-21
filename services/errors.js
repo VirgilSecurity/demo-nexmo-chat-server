@@ -18,11 +18,11 @@ ApiError.prototype.toJSON = function () {
 	};
 };
 
-const INVALID_CSR = () => new ApiError(
+const INVALID_RAW_CARD = () => new ApiError(
 	400,
 	40001,
-	'InvalidCSR',
-	'Could not import CSR, request is malformed.'
+	'InvalidCard',
+	'Could not parse provided raw card string.'
 );
 const INVALID_IDENTITY = () => new ApiError(
 	400,
@@ -30,11 +30,11 @@ const INVALID_IDENTITY = () => new ApiError(
 	'InvalidIdentity',
 	'Another Virgil Card with the same identity has already been registered.'
 );
-const MISSING_CSR = () => new ApiError(
+const MISSING_RAW_CARD = () => new ApiError(
 	400,
 	40003,
-	'MissingCSR',
-	'Request body is malformed. Expected JSON with "csr" property. Did you forget Content-Type header?'
+	'MissingCard',
+	'Request body is malformed. Expected JSON with "raw_card_string" property. Did you forget Content-Type header?'
 );
 const MISSING_PARAM = (paramName) => new ApiError(
 	400,
@@ -81,8 +81,8 @@ const NOT_FOUND = () => new ApiError(
 
 module.exports = {
 	ApiError,
-	MISSING_CSR,
-	INVALID_CSR,
+	MISSING_RAW_CARD,
+	INVALID_RAW_CARD,
 	INVALID_IDENTITY,
 	MISSING_PARAM,
 	MISSING_AUTHORIZATION,

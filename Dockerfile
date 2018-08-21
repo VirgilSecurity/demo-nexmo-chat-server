@@ -1,11 +1,14 @@
-FROM node:6-alpine
+FROM node:8-alpine
 MAINTAINER Virgil <support@VirgilSecurity.com>
 ARG git_commit
 RUN apk add --no-cache --update ca-certificates
+# required for virgil-crypto
+RUN apk add libc6-compat
 
 # Add package.json and then install dependncies
 # so that `npm install` is only run if package.json changes
 COPY package.json .
+COPY package-lock.json .
 
 # Install app dependencies
 RUN npm install --production
