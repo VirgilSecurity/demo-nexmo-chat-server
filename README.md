@@ -4,8 +4,8 @@ Application API server for the [Virgil Nexmo In-app Messaging Demo app](https://
 
  ## Contents
  * [Deployment](#deployment)
-    * [Pre-requisites)(#Pre-requisites)
-    * [Setup instructions)(#Setup instructions)
+    * [Pre-requisites](#pre-requisites)
+    * [Setup instructions](#setup-instructions)
  * [Endpoints](#endpoints)
     * [POST /users](#post-users)
     * [GET /users](#get-users)
