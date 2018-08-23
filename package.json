@@ -1,6 +1,6 @@
 {
   "name": "demo-nexmo-chat-server",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Backend for Virgil Nexmo Chat Demo",
   "main": "server.js",
   "scripts": {
