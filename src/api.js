@@ -29,13 +29,13 @@ router.post('/users', async (req, res, next) => {
 	}
 });
 
-router.get('/users', (req, res, next) => {
+router.get('/users', authenticate, (req, res, next) => {
 	nexmo.listUsers()
 		.then(users => res.json(users))
 		.catch(next);
 });
 
-router.post('/conversations', (req, res, next) => {
+router.post('/conversations', authenticate, (req, res, next) => {
 	const displayName = req.body.display_name;
 	if (!displayName) {
 		return next(errors.MISSING_PARAM('display_name'));
@@ -46,7 +46,7 @@ router.post('/conversations', (req, res, next) => {
 		.catch(next);
 });
 
-router.put('/conversations', (req, res, next) => {
+router.put('/conversations', authenticate, (req, res, next) => {
 	const { conversation_id, user_id, action } = req.body;
 
 	if (!conversation_id) {
@@ -66,7 +66,7 @@ router.put('/conversations', (req, res, next) => {
 		.catch(next);
 });
 
-router.get('/nexmo-jwt', (req, res, next) => {
+router.get('/nexmo-jwt', authenticate, (req, res, next) => {
 	const { identity } = req.query;
 	if (!identity) {
 		return next(errors.MISSING_IDENTITY());
@@ -75,7 +75,7 @@ router.get('/nexmo-jwt', (req, res, next) => {
 	res.json({ jwt });
 });
 
-router.get('/virgil-jwt', (req, res, next) => {
+router.get('/virgil-jwt', authenticate, (req, res, next) => {
 	const { identity } = req.query;
 	if (!identity) {
 		return next(errors.MISSING_IDENTITY());
@@ -83,3 +83,9 @@ router.get('/virgil-jwt', (req, res, next) => {
 	const jwt = virgil.generateJwt(identity);
 	res.json({ jwt: jwt.toString() });
 });
+
+function authenticate (req, res, next) {
+	// request authentication is not implemented for the sake of simplicity,
+	// please implement your own authentication mechanism in your app
+	next();
+}
