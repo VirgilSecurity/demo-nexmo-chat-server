@@ -42,23 +42,11 @@ const MISSING_PARAM = (paramName) => new ApiError(
 	'MissingParameter',
 	`Request body is malformed. Expected JSON with "${paramName}" property. Did you forget Content-Type header?`
 );
-const MISSING_AUTHORIZATION = () => new ApiError(
-	401,
-	40101,
-	'Unauthorized',
-	'Authorization header is missing.'
-);
-const INVALID_ACCESS_TOKEN = () => new ApiError(
-	401,
-	40102,
-	'Unauthorized',
-	'Access token is invalid or has expired.'
-);
-const VIRGIL_AUTH_ERROR = () => new ApiError(
-	500,
-	50010,
-	'VirgilAuthError',
-	'Received unexpected error from Virgil Auth service'
+const MISSING_IDENTITY = () => new ApiError(
+	400,
+	40004,
+	'MissingIdentity',
+	'Request url is invalid. Expected "identity" query parameter.'
 );
 const VIRGIL_CARDS_ERROR = () => new ApiError(
 	500,
@@ -85,9 +73,7 @@ module.exports = {
 	INVALID_RAW_CARD,
 	INVALID_IDENTITY,
 	MISSING_PARAM,
-	MISSING_AUTHORIZATION,
-	INVALID_ACCESS_TOKEN,
-	VIRGIL_AUTH_ERROR,
+	MISSING_IDENTITY,
 	VIRGIL_CARDS_ERROR,
 	INTERNAL_ERROR,
 	NOT_FOUND

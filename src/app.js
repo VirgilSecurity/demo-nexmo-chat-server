@@ -2,22 +2,13 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const errors = require('./services/errors');
-const logger = require('./services/logger');
-const router = require('./routes/api');
+const errors = require('./errors');
+const router = require('./api');
 
 const app = express();
 
 app.use(helmet());
-
-app.get('/health/status', (req, res) => {
-	res.status(200).end();
-});
-
-app.use(morgan('combined', {
-	skip: (req, res) => res.statusCode < 400
-}));
-
+app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(enableCORS);
 
@@ -49,7 +40,7 @@ function handleError(err, req, res, next) {
 	if (err instanceof errors.ApiError) {
 		error = err;
 	} else {
-		logger.error('Unexpected error', err);
+		console.error('Unexpected error', err);
 		error = errors.INTERNAL_ERROR();
 	}
 

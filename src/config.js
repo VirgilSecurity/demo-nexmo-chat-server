@@ -4,8 +4,6 @@ const missingParams = [
 	'VIRGIL_APP_ID',
 	'VIRGIL_API_KEY',
 	'VIRGIL_API_KEY_ID',
-	'VIRGIL_AUTH_URL',
-	'VIRGIL_AUTH_PUBLIC_KEY',
 	'NEXMO_API_KEY',
 	'NEXMO_API_SECRET',
 	'NEXMO_APP_ID',
@@ -20,9 +18,7 @@ module.exports = {
 	virgil: {
 		apiKey: process.env.VIRGIL_API_KEY,
 		apiKeyId: process.env.VIRGIL_API_KEY_ID,
-		appId: process.env.VIRGIL_APP_ID,
-		authBaseUrl: process.env.VIRGIL_AUTH_URL,
-		authPublicKey: process.env.VIRGIL_AUTH_PUBLIC_KEY
+		appId: process.env.VIRGIL_APP_ID
 	},
 	nexmo: {
 		apiKey: process.env.NEXMO_API_KEY,

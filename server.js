@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
 const http = require('http');
-const app = require('../app');
-const logger = require('../services/logger');
-const package = require('../package.json');
-const gitCommit = process.env.GIT_COMMIT || 'latest';
+const app = require('./src/app');
+const package = require('./package.json');
 
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
@@ -16,9 +14,9 @@ server.on('error', onError);
 server.on('listening', onListening);
 
 process.on('SIGINT', () => {
-	logger.info('Shutdown started');
+	console.log('Shutdown started');
 	server.close(() => {
-		logger.info('Process is stopping');
+		console.log('Process is stopping');
 	});
 });
 
@@ -73,11 +71,10 @@ function onError(error) {
 /**
  * Event listener for HTTP server "listening" event.
  */
-
 function onListening() {
     var addr = server.address();
     var bind = typeof addr === 'string'
         ? 'pipe ' + addr
         : 'port ' + addr.port;
-    logger.info(`${package.name} v${package.version} (@${gitCommit}) listening on ${bind}...`);
+    console.log(`${package.name} v${package.version} listening on ${bind}...`);
 }

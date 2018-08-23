@@ -1,5 +1,3 @@
-const url = require('url');
-const request = require('superagent');
 const {
 	CardManager,
 	VirgilCardVerifier,
@@ -13,7 +11,7 @@ const {
 	VirgilAccessTokenSigner
 } = require('virgil-crypto');
 const config = require('../config');
-const errors = require('./errors');
+const errors = require('../errors');
 
 const virgilCrypto = new VirgilCrypto();
 const cardCrypto = new VirgilCardCrypto(virgilCrypto);
@@ -35,29 +33,6 @@ const cardManager = new CardManager({
 });
 
 module.exports = {
-	async getUserCardId(token) {
-		try {
-			const res = await request.post(
-				url.resolve(
-					config.virgil.authBaseUrl,
-					'/v5/authorization/actions/verify'
-				)
-			).send({ access_token: token });
-
-			return res.body.resource_owner_virgil_card_id;
-		} catch (error) {
-			if (error && error.status === 400) {
-				return null;
-			}
-
-			throw error;
-		}
-	},
-
-	getCard(cardId) {
-		return cardManager.getCard(cardId);
-	},
-
 	async publishCard(rawCardStr) {
 		let rawCard;
 		try {

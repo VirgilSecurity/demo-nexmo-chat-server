@@ -1,6 +1,7 @@
 # Virgil Nexmo Demo Chat API v2 Sample Backend
 
-Application API server for the [Virgil Nexmo In-app Messaging Demo app](https://github.com/VirgilSecurity/demo-nexmo-chat-android). Its primary purpose is to register users' Virgil Cards on  Virgil's Cards service and generate JWTs for users to access Nexmo and Virgil APIs. Uses ad hoc [Virgil Auth](https://github.com/VirgilSecurity/virgil-services-auth) service to authenticate users without passwords - feel free to replace the auth to your own auth tech and/or copy this sample Node app into your own backend.
+Application API server for the [Virgil Nexmo In-app Messaging Demo app](https://github.com/VirgilSecurity/demo-nexmo-chat-android). Its primary purpose is to register users' Virgil Cards on  Virgil's Cards service and generate JWTs for users to access Nexmo and Virgil APIs. This server 
+is intended for demonstration purposes only, it does not implement request authentication strategy. Feel free to implement your own auth tech and/or copy the code into your own backend.
 
  ## Contents
  * [Deployment](#deployment)
@@ -13,16 +14,13 @@ Application API server for the [Virgil Nexmo In-app Messaging Demo app](https://
     * [PUT /conversations](#put-conversations)
     * [GET /nexmo-jwt](#get-nexmo-jwt)
     * [GET /virgil-jwt](#get-virgil-jwt)
- * [Authorization](#authorization)
  * [Errors](#errors)
- * [Development](#development)
 
 ## Deployment
 
 ### Pre-requisites
 
-* Ensure you have [Node.js](https://nodejs.org/en/) >= 8 installed 
-* Ensure you have [Docker](https://docs.docker.com/install/) installed
+* Ensure you have [Node.js](https://nodejs.org/en/) >= 8 installed
 * Create a free [Virgil Security](https://dashboard.virgilsecurity.com/) account
 * Create a free [Nexmo](https://dashboard.nexmo.com/) account
 * Install the Nexmo CLI (note the `@beta` tag):
@@ -49,18 +47,13 @@ Application API server for the [Virgil Nexmo In-app Messaging Demo app](https://
 	```
 * Start the server
 	```sh
-	npm run start
+	npm start
 	```
 * Run the tests to verify that it's working
 	```sh
 	npm test
 	```
 * You can access the server API at http://localhost:3000
-* The [Virgil Auth Service](https://github.com/VirgilSecurity/virgil-services-auth) is listening at http://localhost:8080
-* To stop the running server, run
-	```sh
-	npm run stop
-	```
  
  ## Endpoints
  
@@ -103,8 +96,6 @@ You can then use the `CardManager` from virgil sdk to `import` a Virgil Card fro
 
 An endpoint to retrieve a list of users.
 
-> This endpoint requires [authorization](#authorization).
-
 **Response**
 
 ```json
@@ -120,8 +111,6 @@ An endpoint to retrieve a list of users.
 ### POST /conversations
 
 An endpoint to create a new [Nexmo Conversation](https://developer.nexmo.com/stitch/in-app-messaging/guides/simple-conversation)
-
-> This endpoint requires [authorization](#authorization).
 
 **Request**
 
@@ -143,8 +132,6 @@ An endpoint to create a new [Nexmo Conversation](https://developer.nexmo.com/sti
 ### PUT /conversations
 
 An endpoint to add a user to a conversation.
-
-> This endpoint requires [authorization](#authorization).
 
 **Request**
 
@@ -171,11 +158,9 @@ Parameter action must be "join" to add the user to the conversation. Other types
 }
 ```
 
-### GET /nexmo-jwt
+### GET /nexmo-jwt?identity=[YOUR_USER_IDENTITY]
 
-An endpoint to obtain an access token for the Nexmo API.
- 
-> This endpoint requires [authorization](#authorization).
+An endpoint to obtain an access token for the Nexmo API. The URL must include a query parameter named `identity` that is the identity of the user to issue the token for.
 
 **Response**
 ```json
@@ -186,9 +171,7 @@ An endpoint to obtain an access token for the Nexmo API.
 
 ### GET /virgil-jwt
 
-An endpoint to obtain an access token for the Virgil Security API.
-
-> This endpoint requires [authorization](#authorization).
+An endpoint to obtain an access token for the Virgil Security API. The URL must include a query parameter named `identity` that is the identity of the user to issue the token for.
 
 **Response**
 ```json
@@ -197,23 +180,12 @@ An endpoint to obtain an access token for the Virgil Security API.
 }
 ```
 
-
-## Authorization
-
-To authorize the request, the client app must [obtain an access token](https://github.com/VirgilSecurity/virgil-services-auth#post-v5authorizationactionsobtain-access-token)
-from the Virgil Auth service and include it in the `Authorization` header of the request:
-
-```
-Authorization: Bearer eyJhbGciOiJ2aXJnaWwiLCJ0eXA...i8m2asGQM
-```
-
 ## Errors
 
 Application uses standard HTTP response codes:
 
 ```
 200 - Success
-401 - Authentication failed
 400 - Request error
 500 - Server error
 ```
