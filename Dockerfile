@@ -1,5 +1,5 @@
 FROM node:8-alpine
-MAINTAINER Virgil <support@VirgilSecurity.com>
+LABEL author="Virgil <support@VirgilSecurity.com>"
 ARG git_commit
 RUN apk add --no-cache --update ca-certificates
 # required for virgil-crypto
@@ -14,11 +14,8 @@ COPY package-lock.json .
 RUN npm install --production
 
 # Bundle app files
-COPY bin bin/
-COPY config config/
-COPY routes routes/
-COPY services services/
-COPY app.js .
+COPY server.js .
+COPY src src/
 
 ENV PORT 3000
 ENV GIT_COMMIT $git_commit
