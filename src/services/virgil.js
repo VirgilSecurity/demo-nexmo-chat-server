@@ -11,7 +11,7 @@ const {
 	VirgilAccessTokenSigner
 } = require('virgil-crypto');
 const config = require('../config');
-const errors = require('./errors');
+const errors = require('../errors');
 
 const virgilCrypto = new VirgilCrypto();
 const cardCrypto = new VirgilCardCrypto(virgilCrypto);

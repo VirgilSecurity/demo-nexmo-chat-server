@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const virgil = require('../services/virgil');
-const nexmo = require('../services/nexmo');
-const errors = require('../services/errors');
+const virgil = require('./services/virgil');
+const nexmo = require('./services/nexmo');
+const errors = require('./errors');
 
 module.exports = router;
 

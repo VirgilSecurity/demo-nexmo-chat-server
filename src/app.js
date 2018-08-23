@@ -2,9 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const errors = require('./services/errors');
-const logger = require('./services/logger');
-const router = require('./routes/api');
+const errors = require('./errors');
+const router = require('./api');
 
 const app = express();
 
@@ -41,7 +40,7 @@ function handleError(err, req, res, next) {
 	if (err instanceof errors.ApiError) {
 		error = err;
 	} else {
-		logger.error('Unexpected error', err);
+		console.error('Unexpected error', err);
 		error = errors.INTERNAL_ERROR();
 	}
 

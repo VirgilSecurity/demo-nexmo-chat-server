@@ -4,24 +4,21 @@
   "description": "Backend for Virgil Nexmo Chat Demo",
   "main": "server.js",
   "scripts": {
-    "start": "docker-compose up",
-    "stop": "docker-compose down",
-    "test": "node tests/index.js",
+    "start": "node server.js",
+    "test": "node src/__tests__/index.js",
     "setup": "node scripts/setup.js"
   },
   "author": "VirgilSecurity Inc.",
   "license": "BSD-3-Clause",
   "dependencies": {
     "body-parser": "^1.18.2",
-    "bunyan": "^1.8.12",
     "chalk": "^2.4.1",
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
     "helmet": "^3.9.0",
     "inquirer": "^6.1.0",
     "morgan": "^1.9.0",
-    "nexmo": "^2.3.1-beta-1",
-    "superagent": "^3.8.2",
+    "nexmo": "2.3.1-beta-1",
     "virgil-crypto": "^3.0.0",
     "virgil-sdk": "^5.0.0"
   },
