@@ -9,15 +9,7 @@ const router = require('./routes/api');
 const app = express();
 
 app.use(helmet());
-
-app.get('/health/status', (req, res) => {
-	res.status(200).end();
-});
-
-app.use(morgan('combined', {
-	skip: (req, res) => res.statusCode < 400
-}));
-
+app.use(morgan('combined'));
 app.use(bodyParser.json());
 app.use(enableCORS);
 

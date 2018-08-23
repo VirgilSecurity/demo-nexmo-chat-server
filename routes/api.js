@@ -29,13 +29,13 @@ router.post('/users', async (req, res, next) => {
 	}
 });
 
-router.get('/users', authenticate, (req, res, next) => {
+router.get('/users', (req, res, next) => {
 	nexmo.listUsers()
 		.then(users => res.json(users))
 		.catch(next);
 });
 
-router.post('/conversations', authenticate, (req, res, next) => {
+router.post('/conversations', (req, res, next) => {
 	const displayName = req.body.display_name;
 	if (!displayName) {
 		return next(errors.MISSING_PARAM('display_name'));
@@ -46,7 +46,7 @@ router.post('/conversations', authenticate, (req, res, next) => {
 		.catch(next);
 });
 
-router.put('/conversations', authenticate, (req, res, next) => {
+router.put('/conversations', (req, res, next) => {
 	const { conversation_id, user_id, action } = req.body;
 
 	if (!conversation_id) {
@@ -66,42 +66,20 @@ router.put('/conversations', authenticate, (req, res, next) => {
 		.catch(next);
 });
 
-router.get('/nexmo-jwt', authenticate, fetchVirgilCard, (req, res) => {
-	const { userCard } = req;
-	const jwt = nexmo.generateJwt(userCard.identity);
+router.get('/nexmo-jwt', (req, res, next) => {
+	const { identity } = req.query;
+	if (!identity) {
+		return next(errors.MISSING_IDENTITY());
+	}
+	const jwt = nexmo.generateJwt(identity);
 	res.json({ jwt });
 });
 
-router.get('/virgil-jwt', authenticate, fetchVirgilCard, (req, res) => {
-	const { userCard } = req;
-	const jwt = virgil.generateJwt(userCard.identity);
+router.get('/virgil-jwt', (req, res, next) => {
+	const { identity } = req.query;
+	if (!identity) {
+		return next(errors.MISSING_IDENTITY());
+	}
+	const jwt = virgil.generateJwt(identity);
 	res.json({ jwt: jwt.toString() });
 });
-
-async function authenticate(req, res, next) {
-	const authHeader = req.get('Authorization');
-	if (!authHeader) {
-		return next(errors.MISSING_AUTHORIZATION());
-	}
-
-	try {
-		const userCardId = await virgil.getUserCardId(authHeader.split(' ')[1]);
-		if (userCardId === null) {
-			return next(errors.INVALID_ACCESS_TOKEN());
-		}
-
-		req.userCardId = userCardId;
-		next();
-	} catch (error) {
-		next(error);
-	}
-}
-
-function fetchVirgilCard(req, res, next) {
-	return virgil.getCard(req.userCardId)
-		.then(card => {
-			req.userCard = card;
-			next();
-		})
-		.catch(next);
-}

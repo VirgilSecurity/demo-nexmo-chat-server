@@ -1,16 +1,10 @@
-const path = require('path');
-
-const res = require('dotenv').config({ path: path.resolve(__dirname, '../.env.test') });
-if (res.error) {
-	throw res.error;
-}
+require('dotenv').config();
 
 const request = require('supertest');
 const test = require('tape');
 const { VirgilCrypto, VirgilCardCrypto } = require('virgil-crypto');
 const { CardManager } = require('virgil-sdk');
 const createUser = require('./helpers/createUser');
-const obtainAccessToken = require('./helpers/obtainAccessToken');
 
 const virgilCrypto = new VirgilCrypto();
 const cardManager = new CardManager({
@@ -19,8 +13,7 @@ const cardManager = new CardManager({
 	retryOnUnauthorized: false
 });
 
-// make sure the app is started with `docker-compose up`
-const api = request('http://localhost:3000');
+const api = request(require('../app'));
 
 const USER_IDENTITY = 'nexmo_demo_chat_test_user_' + Date.now();
 let user;
@@ -50,9 +43,8 @@ test('POST /users', t => {
 		.end(err => t.end(err));
 });
 
-testWithAccessToken('POST /conversations', (t, accessToken) => {
+test('POST /conversations', t => {
 	api.post('/conversations')
-		.set('Authorization', `Bearer ${accessToken}`)
 		.send({ display_name: CONVERSATION_NAME })
 		.expect(200)
 		.expect(res => {
@@ -63,13 +55,12 @@ testWithAccessToken('POST /conversations', (t, accessToken) => {
 		.end(err => t.end(err));
 });
 
-testWithAccessToken('PUT /conversations', (t, accessToken) => {
+test('PUT /conversations', t => {
 	if (!conversation) {
 		return t.end('Conversation does not exist.');
 	}
 
 	api.put('/conversations')
-		.set('Authorization', `Bearer ${accessToken}`)
 		.send({
 			conversation_id: conversation.id,
 			user_id: user.id,
@@ -84,22 +75,20 @@ testWithAccessToken('PUT /conversations', (t, accessToken) => {
 		.end(err => t.end(err));
 });
 
-testWithAccessToken('GET /nexmo-jwt', (t, accessToken) => {
-	api.get('/nexmo-jwt')
-		.set('Authorization', `Bearer ${accessToken}`)
+test('GET /nexmo-jwt', t => {
+	api.get(`/nexmo-jwt?identity=${encodeURI(USER_IDENTITY)}`)
 		.expect(200)
 		.expect(res => {
-			t.ok(res.body.jwt, 'JWT received');
+			t.ok(res.body.jwt, 'Nexmo JWT received');
 		})
 		.end(err => t.end(err));
 });
 
-testWithAccessToken('GET /virgil-jwt', (t, accessToken) => {
-	api.get('/virgil-jwt')
-		.set('Authorization', `Bearer ${accessToken}`)
+test('GET /virgil-jwt', t => {
+	api.get(`/virgil-jwt?identity=${encodeURI(USER_IDENTITY)}`)
 		.expect(200)
 		.expect(res => {
-			t.ok(res.body.jwt, 'JWT received');
+			t.ok(res.body.jwt, 'Virgil JWT received');
 		})
 		.end(err => t.end(err));
 });
@@ -117,75 +106,26 @@ test('POST /users with invalid card', t => {
 		.end(err => t.end(err));
 });
 
-test('GET /nexmo-jwt without auth header', t => {
+test('GET /nexmo-jwt without identity query param', t => {
 	api.get('/nexmo-jwt')
-		.expect(401)
+		.expect(400)
 		.expect(res => {
 			const error = res.body;
-			t.equals(error.status, 401, 'Error has status');
-			t.equals(error.error_code, 40101, 'Error has error code');
+			t.equals(error.status, 400, 'Error has status');
+			t.equals(error.error_code, 40004, 'Error has error code');
 			t.ok(error.message, 'Error has message');
 		})
 		.end(err => t.end(err));
 });
 
-test('GET /nexmo-jwt with invalid token', t => {
-	api.get('/nexmo-jwt')
-		.set('Authorization', 'Bearer invalid_access_token')
-		.expect(401)
-		.expect(res => {
-			const error = res.body;
-			t.equals(error.status, 401, 'Error has status');
-			t.equals(error.error_code, 40102, 'Error has error code');
-			t.ok(error.message, 'Error has message');
-		})
-		.end(err => t.end(err));
-});
-
-test('GET /virgil-jwt without auth header', t => {
+test('GET /virgil-jwt without identity query param', t => {
 	api.get('/virgil-jwt')
-		.expect(401)
+		.expect(400)
 		.expect(res => {
 			const error = res.body;
-			t.equals(error.status, 401, 'Error has status');
-			t.equals(error.error_code, 40101, 'Error has error code');
+			t.equals(error.status, 400, 'Error has status');
+			t.equals(error.error_code, 40004, 'Error has error code');
 			t.ok(error.message, 'Error has message');
 		})
 		.end(err => t.end(err));
 });
-
-test('GET /virgil-jwt with invalid token', t => {
-	api.get('/virgil-jwt')
-		.set('Authorization', 'Bearer invalid_access_token')
-		.expect(401)
-		.expect(res => {
-			const error = res.body;
-			t.equals(error.status, 401, 'Error has status');
-			t.equals(error.error_code, 40102, 'Error has error code');
-			t.ok(error.message, 'Error has message');
-		})
-		.end(err => t.end(err));
-});
-
-function testWithAccessToken(name, cb) {
-	let accessTokenPromise;
-
-	function getAccessTokenPromise(user) {
-		if (!accessTokenPromise) {
-			accessTokenPromise = obtainAccessToken(user);
-		}
-		return accessTokenPromise;
-	}
-
-	return test(name, t => {
-		if (!user.virgilCardId) {
-			return t.end('Cannot test without user record');
-		}
-
-		getAccessTokenPromise(user)
-			.then(accessToken => {
-				cb(t, accessToken);
-			})
-			.catch(ignore => {});
-	});
-}
