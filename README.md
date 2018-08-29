@@ -46,13 +46,13 @@ is intended for demonstration purposes only, it does not implement request authe
 	nexmo app:create "My Stitch App" https://example.com/answer https://example.com/event --type=rtc --keyfile=private.key
 	```
 	
-* Install the Virgil Node sample server package and run setup
+* Install the Virgil Node sample server package and run setup. The set setup will ask you a few questions...
 	```sh
 	npm install
 	npm run setup
 	```
 	
-* Create an **END-TO-END ENCRYPTION** Application in the Virgil Security [Dashboard](https://dashboard.virgilsecurity.com/apps/new) and copy the APP ID here:
+* To provide the first input, create an **END-TO-END ENCRYPTION** Application in the Virgil Security [Dashboard](https://dashboard.virgilsecurity.com/apps/new) and copy the APP ID here:
 	```sh
 	? Enter your Virgil Security Application ID [paste Virgil APP ID here]
 	```
@@ -63,9 +63,6 @@ is intended for demonstration purposes only, it does not implement request authe
 	```
 
 * Now, on the Virgil API keys page, find your new API key in the list and copy its API KEY ID.  
-
-
-* Go back to your notepad/textEdit and copy your API private key:
 	```sh
 	? Enter your Virgil Security API Key ID [paste it here]
 	```
