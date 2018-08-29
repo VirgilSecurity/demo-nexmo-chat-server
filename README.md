@@ -79,13 +79,13 @@ is intended for demonstration purposes only, it does not implement request authe
 	npm start
 	```
 	
-* Run the tests to verify that it's working
-	```sh
-	npm test
-	```
 * You can test it at http://localhost:3000
- 
+
+Leave the server running and continue your mobile app setup: [Android](https://github.com/VirgilSecurity/demo-nexmo-chat-android)  iOS & JS coming soon
+
+
  ## Endpoints
+ Use this part of the readme to understand what this backend sample does and how it fits in with your own backend.
  
  ### POST /users
  
