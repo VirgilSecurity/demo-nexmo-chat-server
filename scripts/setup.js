@@ -26,18 +26,6 @@ inquirer.prompt([
     },
     {
         type: 'input',
-        name: 'virgil.apiKeyId',
-        message: 'Enter your Virgil Security API Key ID',
-        validate: (input => {
-            if (HEX_REGEXP.test(input)) {
-                return true;
-            }
-
-            return 'Invalid Virgil API Key ID, must be 32 characters in HEX.';
-        })
-    },
-    {
-        type: 'input',
         name: 'virgil.apiKey',
         message: 'Enter your Virgil Security API Key private key',
         validate: (input => {
@@ -47,6 +35,18 @@ inquirer.prompt([
                 return 'The input is not a private key.'
             }
             return true;
+        })
+    },
+    {
+        type: 'input',
+        name: 'virgil.apiKeyId',
+        message: 'Enter your Virgil Security API Key ID',
+        validate: (input => {
+            if (HEX_REGEXP.test(input)) {
+                return true;
+            }
+
+            return 'Invalid Virgil API Key ID, must be 32 characters in HEX.';
         })
     },
     {
@@ -68,7 +68,7 @@ inquirer.prompt([
         type: 'input',
         name: 'nexmo.apiSecret',
         message: 'Enter your Nexmo API Secret',
-        validate: input => HEX_REGEXP.test(input) || 'Invalid Nexmo API Secret. Must be a string in HEX'
+        validate: input => (typeof input === 'string' && input.trim() !== '') || 'Invalid Nexmo API Secret'
     }
 ]).then(answers => {
     const parsedNexmoConfig = parseNexmoAppConfig(
