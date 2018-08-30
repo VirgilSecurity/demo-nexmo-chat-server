@@ -35,27 +35,57 @@ is intended for demonstration purposes only, it does not implement request authe
 
 ### Setup instructions
 
-* Create an **END-TO-END ENCRYPTION** Application in the Virgil Security [Dashboard](https://dashboard.virgilsecurity.com/apps/new)
-* Create an **API Key** in the Virgil Security [Dashboard](https://dashboard.virgilsecurity.com/api-keys)
+* Clone this Node sample server repo to your disk and step into the project's folder
+	```sh
+	git clone https://github.com/VirgilSecurity/demo-nexmo-chat-server.git
+	cd demo-nexmo-chat-server
+	```
+	
 * Create a Nexmo Application
 	```sh
 	nexmo app:create "My Stitch App" https://example.com/answer https://example.com/event --type=rtc --keyfile=private.key
 	```
-* Run the `setup` npm script and follow the instructions to configure the server
+	
+* Install the Virgil Node sample server package and run setup. The set setup will ask you a few questions...
 	```sh
+	npm install
 	npm run setup
 	```
-* Start the server
+	
+* To provide the first input, create an **END-TO-END ENCRYPTION** Application in the Virgil Security [Dashboard](https://dashboard.virgilsecurity.com/apps/new) and copy the APP ID here:
+	```sh
+	? Enter your Virgil Security Application ID [paste Virgil APP ID here]
+	```
+	
+* Go back to the Virgil Dashboard [API Keys page and create one](https://dashboard.virgilsecurity.com/api-keys), it will be copied to your clipboard.
+	```sh
+	? Enter your Virgil Security API Key private key [paste it here]
+	```
+
+* Now, on the Virgil API keys page, find your new API key in the list and copy its API KEY ID.  
+	```sh
+	? Enter your Virgil Security API Key ID [paste it here]
+	```
+	
+* Get your [Nexmo API keys](https://dashboard.nexmo.com/getting-started-guide) and complete the rest of the questions:
+	```sh
+	? Enter the path to your Nexmo app conifg file (.nexmo-app) [simply hit enter]
+	? Enter your Nexmo API Key [paste your Nexmo API key]
+	? Enter your Nexmo API Secret [paste your Nexmo API secret]
+	```
+	
+* Now the Virgil node backend server is ready to start:
 	```sh
 	npm start
 	```
-* Run the tests to verify that it's working
-	```sh
-	npm test
-	```
-* You can access the server API at http://localhost:3000
- 
+	
+* You can test it at http://localhost:3000
+
+Leave the server running and continue your mobile app setup: [Android](https://github.com/VirgilSecurity/demo-nexmo-chat-android)  iOS & JS coming soon
+
+
  ## Endpoints
+ Use this part of the readme to understand what this backend sample does and how it fits in with your own backend.
  
  ### POST /users
  
