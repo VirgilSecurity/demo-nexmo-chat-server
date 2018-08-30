@@ -53,7 +53,7 @@ inquirer.prompt([
         type: 'input',
         name: 'nexmo.appConfigPath',
         message: 'Enter the path to your Nexmo app conifg file',
-        default: '.nexmo-app',
+        when: !fs.existsSync(path.resolve(process.cwd(), '.nexmo-app')),
         filter: input =>  path.isAbsolute(input) ? input : path.resolve(process.cwd(), input),
         validate: filename => 
             fs.existsSync(filename) || `Cannot read ${filename}. Make sure the file exists.`
@@ -62,7 +62,7 @@ inquirer.prompt([
         type: 'input',
         name: 'nexmo.apiKey',
         message: 'Enter your Nexmo API Key',
-        validate: input => HEX_REGEXP.test(input) || 'Invalid Nexmo API Key. Must be a string in HEX'
+        validate: input => (typeof input === 'string' && input.trim() !== '') || 'Invalid Nexmo API Key'
     },
     {
         type: 'input',
