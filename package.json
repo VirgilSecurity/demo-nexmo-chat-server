@@ -17,7 +17,7 @@
     "express": "^4.16.2",
     "helmet": "^3.9.0",
     "inquirer": "^6.1.0",
-    "morgan": "^1.9.0",
+    "morgan": "^1.9.1",
     "nexmo": "2.3.1-beta-1",
     "virgil-crypto": "^3.0.0",
     "virgil-sdk": "^5.0.0"
